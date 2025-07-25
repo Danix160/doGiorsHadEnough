@@ -150,8 +150,7 @@ class OnlineSerieTV : MainAPI() {
             "Serie TV: Reality",
             "Serie TV: Guerra e Politica",
             "Serie TV: Documentario",
-            "Serie TV: Animazione" -> {
-                val itemGrid = page.selectFirst("#box_movies")!!
+            "Serie TV: Animazione" -> 
                 val items = itemGrid.select(".movie")
                 items.map {
                     it.toSearchResponse()
