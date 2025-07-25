@@ -43,38 +43,6 @@ class OnlineSerieTV : MainAPI() {
 //        mainUrl to "Top 10 Serie TV",
         "$mainUrl/movies/" to "Film: Ultimi aggiunti",
         "$mainUrl/serie-tv/" to "Serie TV: Ultime aggiunte",
-
-        "$mainUrl/serie-tv-generi/animazione/" to "Serie TV: Animazione",
-        "$mainUrl/film-generi/animazione/" to "Film: Animazione",
-
-        "$mainUrl/serie-tv-generi/documentario/" to "Serie TV: Documentario",
-        "$mainUrl/film-generi/documentario/" to "Film: Documentario",
-
-        "$mainUrl/serie-tv-generi/action-adventure/" to "Serie TV: Azione e Avventura",
-        "$mainUrl/film-generi/avventura/" to "Film: Avventura",
-        "$mainUrl/film-generi/azione/" to "Film: Azione",
-        "$mainUrl/film-generi/supereroi/" to "Film: Supereroi",
-
-        "$mainUrl/serie-tv-generi/sci-fi-fantasy/" to "Serie TV: Fantascienza e Fantasy",
-        "$mainUrl/film-generi/fantascienza/" to "Film: Fantascienza",
-        "$mainUrl/film-generi/fantasy/" to "Film: Fantasy",
-
-        "$mainUrl/serie-tv-generi/dramma/" to "Serie TV: Dramma",
-        "$mainUrl/film-generi/drammatico/" to "Film: Dramma",
-        "$mainUrl/film-generi/sentimentale/" to "Film: Sentimentale",
-
-        "$mainUrl/serie-tv-generi/commedia/" to "Serie TV: Commedia",
-        "$mainUrl/film-generi/commedia/" to "Film: Commedia",
-
-        "$mainUrl/serie-tv-generi/crime/" to "Serie TV: Crime",
-        "$mainUrl/serie-tv-generi/mistero/" to "Serie TV: Mistero",
-
-        "$mainUrl/serie-tv-generi/war-politics/" to "Serie TV: Guerra e Politica",
-        "$mainUrl/film-generi/horror/" to "Film: Horror",
-        "$mainUrl/film-generi/thriller/" to "Film: Thriller",
-
-        "$mainUrl/serie-tv-generi/reality/" to "Serie TV: Reality",
-
         )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
