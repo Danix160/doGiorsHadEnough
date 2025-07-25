@@ -83,14 +83,11 @@ class OnlineSerieTV : MainAPI() {
         } catch (e: SocketTimeoutException) {
             return null
         }
-        val searchResponses = getItems(request.name, response)
-        return newHomePageResponse(HomePageList(request.name, searchResponses), false)
     }
 
     private suspend fun getItems(section: String, page: Document): List<SearchResponse> {
         val searchResponses = when (section) {
             "Film: Ultimi aggiunti", "Serie TV: Ultime aggiunte" -> {
-                val itemGrid = page.selectFirst(".wp-block-uagb-post-grid")!!
                 val items = itemGrid.select(".uagb-post__inner-wrap")
                 items.map {
                     val itemTag = it.select(".uagb-post__title > a")
