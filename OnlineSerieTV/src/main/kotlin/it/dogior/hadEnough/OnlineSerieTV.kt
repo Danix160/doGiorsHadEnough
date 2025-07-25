@@ -93,44 +93,6 @@ class OnlineSerieTV : MainAPI() {
                     }
                 } ?: emptyList()
             }
-
-            "Film: Avventura",
-            "Film: Azione",
-            "Film: Animazione",
-            "Film: Commedia",
-            "Film: Documentario",
-            "Film: Dramma",
-            "Film: Horror",
-            "Film: Thriller",
-            "Film: Fantascienza",
-            "Film: Fantasy",
-            "Film: Supereroi",
-            "Film: Sentimentale",
-            "Serie TV: Azione e Avventura",
-            "Serie TV: Fantascienza e Fantasy",
-            "Serie TV: Dramma",
-            "Serie TV: Crime",
-            "Serie TV: Mistero",
-            "Serie TV: Commedia",
-            "Serie TV: Reality",
-            "Serie TV: Guerra e Politica",
-            "Serie TV: Documentario",
-            "Serie TV: Animazione" -> 
-                val items = itemGrid.select(".movie")
-                items.map {
-                    it.toSearchResponse()
-                }
-            }
-
-            else -> {
-                Log.d("OnlineSerieTV", "Unknown section: $section")
-                emptyList()
-            }
-        }
-        return searchResponses
-    }
-
-
     private fun Element.toSearchResponse(): SearchResponse {
         val title = this.select("h2").text().trim().replace(Regex("""\d{4}$"""), "")
         val url = this.select("a").attr("href")
