@@ -1,29 +1,7 @@
 package it.dogior.hadEnough
 
 import android.util.Log
-import com.lagradost.cloudstream3.Episode
-import com.lagradost.cloudstream3.HomePageList
-import com.lagradost.cloudstream3.HomePageResponse
-import com.lagradost.cloudstream3.LoadResponse
-import com.lagradost.cloudstream3.LoadResponse.Companion.addRating
-import com.lagradost.cloudstream3.TvType
-import com.lagradost.cloudstream3.MainAPI
-import com.lagradost.cloudstream3.MainPageRequest
-import com.lagradost.cloudstream3.SearchResponse
-import com.lagradost.cloudstream3.SubtitleFile
-import com.lagradost.cloudstream3.addPoster
-import com.lagradost.cloudstream3.amap
-import com.lagradost.cloudstream3.app
-import com.lagradost.cloudstream3.mainPageOf
-import com.lagradost.cloudstream3.newHomePageResponse
-import com.lagradost.cloudstream3.newMovieLoadResponse
-import com.lagradost.cloudstream3.newTvSeriesLoadResponse
-import com.lagradost.cloudstream3.newTvSeriesSearchResponse
-import com.lagradost.cloudstream3.utils.AppUtils.parseJson
-import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.loadExtractor
-import it.dogior.hadEnough.extractors.MaxStreamExtractor
-import it.dogior.hadEnough.extractors.StreamTapeExtractor
+import com.lagradost.cloudstream3.*
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.net.SocketTimeoutException
@@ -31,38 +9,41 @@ import java.net.SocketTimeoutException
 class OnlineSerieTV : MainAPI() {
     override var mainUrl = "https://onlineserietv.com"
     override var name = "OnlineSerieTV"
-    override val supportedTypes = setOf(
-        TvType.Movie, TvType.TvSeries,
-        TvType.Cartoon, TvType.Anime, TvType.AnimeMovie, TvType.Documentary
-    )
+    override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Cartoon, TvType.Anime, TvType.AnimeMovie, TvType.Documentary)
     override var lang = "it"
     override val hasMainPage = true
 
+    // Homepage con categorie
     override val mainPage = mainPageOf(
-//        mainUrl to "Top 10 Film",
-//        mainUrl to "Top 10 Serie TV",
         "$mainUrl/movies/" to "Film: Ultimi aggiunti",
         "$mainUrl/serie-tv/" to "Serie TV: Ultime aggiunte",
-        )
+        "$mainUrl/serie-tv-generi/animazione/" to "Serie TV: Animazione",
+        "$mainUrl/film-generi/animazione/" to "Film: Animazione",
+        "$mainUrl/serie-tv-generi/action-adventure/" to "Serie TV: Azione e Avventura"
+    )
 
+    // Funzione che carica la homepage
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
         val response = try {
             app.get(request.data).document
         } catch (e: SocketTimeoutException) {
             return null
         }
+        val searchResponses = getItems(request.name, response)
+        return newHomePageResponse(HomePageList(request.name, searchResponses), false)
     }
 
+    // Estrazione dei contenuti dalla homepage
     private suspend fun getItems(section: String, page: Document): List<SearchResponse> {
         val searchResponses = when (section) {
             "Film: Ultimi aggiunti", "Serie TV: Ultime aggiunte" -> {
+                val itemGrid = page.selectFirst(".wp-block-uagb-post-grid")!!
                 val items = itemGrid.select(".uagb-post__inner-wrap")
                 items.map {
                     val itemTag = it.select(".uagb-post__title > a")
                     val title = itemTag.text().trim().replace(Regex("""\d{4}$"""), "")
                     val url = itemTag.attr("href")
                     val poster = it.select(".uagb-post__image > a > img").attr("src")
-
                     newTvSeriesSearchResponse(title, url) {
                         this.posterUrl = poster
                     }
@@ -78,7 +59,7 @@ class OnlineSerieTV : MainAPI() {
                     bothTop10.first()
                 }
                 val items = currentTop10?.select(".scrolling > li")
-                items?.amap {
+                items?.map {
                     val title = it.select("a").text().trim().replace(Regex("""\d{4}$"""), "")
                     val url = it.select("a").attr("href")
 
@@ -93,38 +74,33 @@ class OnlineSerieTV : MainAPI() {
                     }
                 } ?: emptyList()
             }
-    private fun Element.toSearchResponse(): SearchResponse {
-        val title = this.select("h2").text().trim().replace(Regex("""\d{4}$"""), "")
-        val url = this.select("a").attr("href")
-        val poster = this.select("img").attr("src")
-        return newTvSeriesSearchResponse(title, url) {
-            this.posterUrl = poster
+
+            else -> emptyList()
         }
+        return searchResponses
     }
 
-    // this function gets called when you search for something
+    // Funzione di ricerca
     override suspend fun search(query: String): List<SearchResponse> {
         val response = app.get("$mainUrl/?s=$query")
         val page = response.document
         val itemGrid = page.selectFirst("#box_movies")!!
         val items = itemGrid.select(".movie")
-        val searchResponses = items.map {
+        return items.map {
             it.toSearchResponse()
         }
-        return searchResponses
     }
 
+    // Funzione per caricare un contenuto specifico (film o serie TV)
     override suspend fun load(url: String): LoadResponse {
         val response = app.get(url).document
         val dati = response.selectFirst(".headingder")!!
         val poster = dati.select(".imgs > img").attr("src").replace(Regex("""-\d+x\d+"""), "")
-        val title = dati.select(".dataplus > div:nth-child(1) > h1").text().trim()
-            .replace(Regex("""\d{4}$"""), "")
+        val title = dati.select(".dataplus > div:nth-child(1) > h1").text().trim().replace(Regex("""\d{4}$"""), "")
         val rating = dati.select(".stars > span:nth-child(3)").text().trim().removeSuffix("/10")
         val genres = dati.select(".stars > span:nth-child(6) > i:nth-child(1)").text().trim()
         val year = dati.select(".stars > span:nth-child(8) > i:nth-child(1)").text().trim()
-        val duration = dati.select(".stars > span:nth-child(10) > i:nth-child(1)").text()
-            .removeSuffix(" minuti")
+        val duration = dati.select(".stars > span:nth-child(10) > i:nth-child(1)").text().removeSuffix(" minuti")
         val isMovie = url.contains("/film/")
 
         return if (isMovie) {
@@ -151,23 +127,22 @@ class OnlineSerieTV : MainAPI() {
         }
     }
 
+    // Estrazione degli episodi di una serie TV
     private fun getEpisodes(page: Document): List<Episode> {
         val table = page.selectFirst("#hostlinks > table:nth-child(1)")!!
         var season: Int? = 1
         val rows = table.select("tr")
-        val episodes: List<Episode> = rows.mapNotNull {
+        val episodes = rows.mapNotNull {
             if (it.childrenSize() == 0) {
                 null
             } else if (it.childrenSize() == 1) {
-                val seasonText =
-                    it.select("td:nth-child(1)").text().substringBefore("- Episodi disponibi")
+                val seasonText = it.select("td:nth-child(1)").text().substringBefore("- Episodi disponibi")
                 season = Regex("""\d+""").find(seasonText)?.value?.toInt()
                 null
             } else {
                 val title = it.select("td:nth-child(1)").text()
                 val links = it.select("a").map { a -> "\"${a.attr("href")}\"" }
                 Episode("$links").apply {
-//                    name = title
                     this.season = season
                     this.episode = title.substringAfter("x").substringBefore(" ").toIntOrNull()
                 }
@@ -176,6 +151,7 @@ class OnlineSerieTV : MainAPI() {
         return episodes
     }
 
+    // Funzione che carica i link di streaming
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
@@ -201,22 +177,15 @@ class OnlineSerieTV : MainAPI() {
         return true
     }
 
+    // Bypass dei link Uprot
     private suspend fun bypassUprot(link: String): String? {
         val updatedLink = if ("msf" in link) link.replace("msf", "mse") else link
-
-        // Generate headers (replace with your own method to generate fake headers)
         val headers = mapOf(
             "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
         )
-
-        // Make the HTTP request
         val response = app.get(updatedLink, headers = headers, timeout = 10_000)
-
-        // Parse the HTML using Jsoup
         val document = response.document
-        Log.d("Uprot", document.toString())//.select("a").toString())
         val maxstreamUrl = document.selectFirst("a")?.attr("href")
-
         return maxstreamUrl
     }
 }
