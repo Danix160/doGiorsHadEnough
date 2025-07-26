@@ -4,7 +4,7 @@
         "apiVersion": 1,
         "repositoryUrl": "https://github.com/doGior/doGiorsHadEnough",
         "fileSize": 23054,
-        "status": 1,
+        "status": 1, 
         "language": "it",
         "authors": [
             "doGior"
@@ -162,6 +162,26 @@
         "url": "https://raw.githubusercontent.com/doGior/doGiorsHadEnough/builds/DaddyLive.cs3",
         "name": "DaddyLive"
     },
+    {
+  "iconUrl": "https://dinostreaming.it/favicon.ico",
+  "apiVersion": 1,
+  "repositoryUrl": "https://github.com/doGior/doGiorsHadEnough",
+  "fileSize": 30000,
+  "status": 1,
+  "language": "it",
+  "authors": [
+    "doGior"
+  ],
+  "tvTypes": [
+    "Movie",
+    "TvSeries"
+  ],
+  "version": 1,
+  "internalName": "DinoStreaming",
+  "description": "Movies and Shows from DinoStreaming",
+  "url": "https://raw.githubusercontent.com/Danix160/clone/builds/DinoStreaming.cs3",
+  "name": "DinoStreaming"
+},
     {
         "iconUrl": "https://huhu.to/favicon.ico",
         "apiVersion": 1,
