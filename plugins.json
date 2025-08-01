@@ -185,7 +185,7 @@
         "apiVersion": 1,
         "repositoryUrl": "https://github.com/Danix160/doGiorsHadEnough",
         "fileSize": 20340,
-        "status": 0,
+        "status": 1,
         "language": "it",
         "authors": [
             "doGior"
@@ -200,7 +200,7 @@
         "version": 3,
         "internalName": "OnlineSerieTV",
         "description": "Movies and Shows from OnlineSerieTV",
-        "url": "https://raw.githubusercontent.com/doGior/doGiorsHadEnough/builds/OnlineSerieTV.cs3",
+        "url": "https://raw.githubusercontent.com/Danix160/doGiorsHadEnough/builds/OnlineSerieTV.cs3",
         "name": "OnlineSerieTV"
     },
     {
